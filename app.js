@@ -1,7 +1,13 @@
+console.log("app.js berhasil dimuat"); // cek apakah file terbaca
+
 const settingsForm = document.getElementById("settingsForm");
 
-settingsForm.addEventListener("submit", (e) => {
-  e.preventDefault(); // cegah refresh halaman
-  console.log("Form disubmit"); // cek di console
-  alert("Form berhasil ditangkap JS!");
-});
+if (settingsForm) {
+  settingsForm.addEventListener("submit", (e) => {
+    e.preventDefault(); // cegah refresh halaman
+    console.log("Form disubmit");
+    alert("Form berhasil ditangkap JS!");
+  });
+} else {
+  console.error("Form dengan id 'settingsForm' tidak ditemukan!");
+}
