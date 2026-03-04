@@ -20,6 +20,13 @@ closeModal.addEventListener("click", () => {
   settingsModal.style.display = "none";
 });
 
+// Tutup modal kalau klik di luar konten
+window.addEventListener("click", (e) => {
+  if (e.target === settingsModal) {
+    settingsModal.style.display = "none";
+  }
+});
+
 // Simpan project (tambah/edit)
 settingsForm.addEventListener("submit", async (e) => {
   e.preventDefault();
