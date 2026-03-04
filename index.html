@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,50 +10,42 @@
 <body>
   <header>
     <h1>📊 Project Tracker</h1>
-    <button id="googleSignIn">Sign in with Google</button>
+    <button id="settingsBtn">⚙️ Pengaturan</button>
   </header>
 
   <main>
-    <!-- Form Project -->
+    <!-- Tabel Project -->
     <section>
-      <h2>Tambah Project</h2>
-      <form id="projectForm">
-        <input type="text" id="projectName" placeholder="Nama Project" required>
-        <input type="text" id="projectDesc" placeholder="Deskripsi" required>
-        <input type="date" id="projectDeadline" required>
-        <button type="submit">Simpan Project</button>
-      </form>
-    </section>
-
-    <!-- Form Progress -->
-    <section>
-      <h2>Tambah Progress</h2>
-      <form id="progressForm">
-        <input type="date" id="progressDate" required>
-        <input type="text" id="progressStatus" placeholder="Status" required>
-        <textarea id="progressNotes" placeholder="Catatan"></textarea>
-        <button type="submit">Simpan Progress</button>
-      </form>
-    </section>
-
-    <!-- Tabel Progress -->
-    <section>
-      <h2>Daftar Progress</h2>
-      <table id="progressTable">
+      <h2>Daftar Project</h2>
+      <table id="projectTable">
         <thead>
           <tr>
-            <th>Tanggal</th>
+            <th>Nama</th>
             <th>Status</th>
-            <th>Catatan</th>
+            <th>Tanggal Buat</th>
+            <th>Deadline</th>
             <th>Aksi</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </section>
-
-    <button id="exportJson">Export JSON</button>
   </main>
+
+  <!-- Modal Pengaturan -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <h2>Tambah/Edit Project</h2>
+      <form id="settingsForm">
+        <input type="text" id="projectName" placeholder="Nama Project" required>
+        <input type="text" id="projectStatus" placeholder="Status" required>
+        <input type="date" id="projectCreated" required>
+        <input type="date" id="projectDeadline" required>
+        <button type="submit">Simpan</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
