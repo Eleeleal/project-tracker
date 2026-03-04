@@ -1,13 +1,21 @@
-console.log("app.js berhasil dimuat"); // cek apakah file terbaca
+console.log("app.js berhasil dimuat");
 
-const settingsForm = document.getElementById("settingsForm");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeModal = document.getElementById("closeModal");
 
-if (settingsForm) {
-  settingsForm.addEventListener("submit", (e) => {
-    e.preventDefault(); // cegah refresh halaman
-    console.log("Form disubmit");
-    alert("Form berhasil ditangkap JS!");
+if (settingsBtn) {
+  settingsBtn.addEventListener("click", () => {
+    console.log("Tombol Pengaturan ditekan");
+    settingsModal.style.display = "block";
   });
 } else {
-  console.error("Form dengan id 'settingsForm' tidak ditemukan!");
+  console.error("Tombol dengan id 'settingsBtn' tidak ditemukan!");
+}
+
+if (closeModal) {
+  closeModal.addEventListener("click", () => {
+    console.log("Modal ditutup");
+    settingsModal.style.display = "none";
+  });
 }
