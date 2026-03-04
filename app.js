@@ -1,4 +1,4 @@
-console.log("app.js berhasil dimuat"); // cek apakah file terbaca
+console.log("app.js berhasil dimuat");
 
 // Referensi elemen
 const settingsBtn = document.getElementById("settingsBtn");
@@ -7,18 +7,21 @@ const closeModal = document.getElementById("closeModal");
 const settingsForm = document.getElementById("settingsForm");
 const tbody = document.querySelector("#projectTable tbody");
 
-let editId = null; // projectId yang sedang diedit
+let editId = null;
 
 // Pastikan modal tertutup saat awal
-settingsModal.style.display = "none";
+if (settingsModal) {
+  settingsModal.style.display = "none";
+}
 
 // Buka modal
 if (settingsBtn) {
+  console.log("settingsBtn ditemukan:", settingsBtn);
   settingsBtn.addEventListener("click", () => {
     console.log("Tombol Pengaturan ditekan");
-    settingsForm.reset();
+    if (settingsForm) settingsForm.reset();
     editId = null;
-    settingsModal.style.display = "block";
+    if (settingsModal) settingsModal.style.display = "block";
   });
 } else {
   console.error("Tombol dengan id 'settingsBtn' tidak ditemukan!");
@@ -28,7 +31,7 @@ if (settingsBtn) {
 if (closeModal) {
   closeModal.addEventListener("click", () => {
     console.log("Modal ditutup");
-    settingsModal.style.display = "none";
+    if (settingsModal) settingsModal.style.display = "none";
   });
 }
 
@@ -40,7 +43,7 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// Simpan project (tambah/edit)
+// Simpan project
 if (settingsForm) {
   settingsForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -58,17 +61,17 @@ if (settingsForm) {
     try {
       if (editId) {
         await db.collection("projects").doc(editId).set(projectData);
-        console.log("Project berhasil diperbarui dengan ID:", editId);
+        console.log("Project diperbarui:", editId);
         alert("Project berhasil diperbarui!");
       } else {
         const docRef = await db.collection("projects").add(projectData);
-        console.log("Project baru berhasil ditambahkan dengan ID:", docRef.id);
+        console.log("Project baru ditambahkan dengan ID:", docRef.id);
         alert("Project berhasil ditambahkan!");
       }
       settingsModal.style.display = "none";
       loadProjects();
     } catch (err) {
-      console.error("Firestore error saat simpan:", err);
+      console.error("Firestore error:", err);
       alert("Error simpan project: " + err.message);
     }
   });
@@ -76,13 +79,13 @@ if (settingsForm) {
   console.error("Form dengan id 'settingsForm' tidak ditemukan!");
 }
 
-// Render tabel project
+// Load project
 async function loadProjects() {
   tbody.innerHTML = "";
   console.log("Memuat project dari Firestore...");
   try {
     const snapshot = await db.collection("projects").get();
-    console.log("Jumlah project ditemukan:", snapshot.size);
+    console.log("Jumlah project:", snapshot.size);
     snapshot.forEach(doc => {
       const p = doc.data();
       console.log("Project:", doc.id, p);
@@ -107,7 +110,7 @@ async function loadProjects() {
 
 // Edit project
 async function editProject(id) {
-  console.log("Edit project dengan ID:", id);
+  console.log("Edit project:", id);
   try {
     const docSnap = await db.collection("projects").doc(id).get();
     if (docSnap.exists) {
@@ -129,11 +132,11 @@ async function editProject(id) {
 
 // Hapus project
 async function deleteProject(id) {
-  console.log("Hapus project dengan ID:", id);
+  console.log("Hapus project:", id);
   if (!confirm("Yakin ingin menghapus project ini?")) return;
   try {
     await db.collection("projects").doc(id).delete();
-    console.log("Project berhasil dihapus:", id);
+    console.log("Project dihapus:", id);
     alert("Project berhasil dihapus!");
     loadProjects();
   } catch (err) {
