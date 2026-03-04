@@ -1,105 +1,106 @@
-// Google Sign-In
-document.getElementById("googleSignIn").addEventListener("click", () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(result => alert("Login berhasil!"))
-    .catch(err => alert("Login gagal: " + err.message));
+// Referensi elemen
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeModal = document.getElementById("closeModal");
+const settingsForm = document.getElementById("settingsForm");
+const tbody = document.querySelector("#projectTable tbody");
+
+// Simpan projectId yang sedang diedit
+let editId = null;
+
+// Buka modal
+settingsBtn.addEventListener("click", () => {
+  settingsForm.reset();
+  editId = null;
+  settingsModal.style.display = "block";
 });
 
-// Tambah Project
-document.getElementById("projectForm").addEventListener("submit", async (e) => {
+// Tutup modal
+closeModal.addEventListener("click", () => {
+  settingsModal.style.display = "none";
+});
+
+// Simpan project (tambah/edit)
+settingsForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const projectData = {
+    name: document.getElementById("projectName").value,
+    status: document.getElementById("projectStatus").value,
+    created: document.getElementById("projectCreated").value,
+    deadline: document.getElementById("projectDeadline").value
+  };
+
   try {
-    const name = document.getElementById("projectName").value;
-    const desc = document.getElementById("projectDesc").value;
-    const deadline = document.getElementById("projectDeadline").value;
-
-    const projectRef = await db.collection("projects").add({
-      name, desc, deadline
-    });
-
-    alert("Project berhasil disimpan!");
-    localStorage.setItem("currentProjectId", projectRef.id);
+    if (editId) {
+      // Update project
+      await db.collection("projects").doc(editId).set(projectData);
+      alert("Project berhasil diperbarui!");
+    } else {
+      // Tambah project baru
+      await db.collection("projects").add(projectData);
+      alert("Project berhasil ditambahkan!");
+    }
+    settingsModal.style.display = "none";
+    loadProjects();
   } catch (err) {
     alert("Error: " + err.message);
   }
 });
 
-// Tambah Progress
-document.getElementById("progressForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  try {
-    const projectId = localStorage.getItem("currentProjectId");
-    const date = document.getElementById("progressDate").value;
-    const status = document.getElementById("progressStatus").value;
-    const notes = document.getElementById("progressNotes").value;
-
-    await db.collection("projects").doc(projectId).collection("progress").add({
-      date, status, notes
-    });
-
-    alert("Progress berhasil disimpan!");
-    loadProgress();
-  } catch (err) {
-    alert("Error: " + err.message);
-  }
-});
-
-// Load Progress
-async function loadProgress() {
-  const projectId = localStorage.getItem("currentProjectId");
-  const tbody = document.querySelector("#progressTable tbody");
+// Render tabel project
+async function loadProjects() {
   tbody.innerHTML = "";
-
   try {
-    const snapshot = await db.collection("projects").doc(projectId).collection("progress").get();
+    const snapshot = await db.collection("projects").get();
     snapshot.forEach(doc => {
-      const data = doc.data();
+      const p = doc.data();
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${data.date}</td>
-        <td>${data.status}</td>
-        <td>${data.notes}</td>
+        <td>${p.name}</td>
+        <td>${p.status}</td>
+        <td>${p.created}</td>
+        <td>${p.deadline}</td>
         <td>
-          <button onclick="deleteProgress('${doc.id}')">Hapus</button>
+          <button onclick="editProject('${doc.id}')">Edit</button>
+          <button onclick="deleteProject('${doc.id}')">Hapus</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
   } catch (err) {
-    alert("Gagal load progress: " + err.message);
+    alert("Gagal load project: " + err.message);
   }
 }
 
-// Hapus Progress
-async function deleteProgress(id) {
-  const projectId = localStorage.getItem("currentProjectId");
+// Edit project
+async function editProject(id) {
   try {
-    await db.collection("projects").doc(projectId).collection("progress").doc(id).delete();
-    alert("Progress berhasil dihapus!");
-    loadProgress();
+    const docSnap = await db.collection("projects").doc(id).get();
+    if (docSnap.exists) {
+      const p = docSnap.data();
+      document.getElementById("projectName").value = p.name;
+      document.getElementById("projectStatus").value = p.status;
+      document.getElementById("projectCreated").value = p.created;
+      document.getElementById("projectDeadline").value = p.deadline;
+      editId = id;
+      settingsModal.style.display = "block";
+    }
   } catch (err) {
     alert("Error: " + err.message);
   }
 }
 
-// Export JSON
-document.getElementById("exportJson").addEventListener("click", async () => {
-  const projectId = localStorage.getItem("currentProjectId");
+// Hapus project
+async function deleteProject(id) {
+  if (!confirm("Yakin ingin menghapus project ini?")) return;
   try {
-    const projectDoc = await db.collection("projects").doc(projectId).get();
-    const progressDocs = await db.collection("projects").doc(projectId).collection("progress").get();
-
-    const projectData = projectDoc.data();
-    projectData.progress = progressDocs.docs.map(doc => doc.data());
-
-    const blob = new Blob([JSON.stringify(projectData, null, 2)], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "project.json";
-    a.click();
+    await db.collection("projects").doc(id).delete();
+    alert("Project berhasil dihapus!");
+    loadProjects();
   } catch (err) {
-    alert("Error export: " + err.message);
+    alert("Error: " + err.message);
   }
-});
+}
+
+// Load project saat halaman dibuka
+loadProjects();
