@@ -12,6 +12,8 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+    position: relative;
+  z-index: 20; /* pastikan header di atas modal */
 }
 
 header h1 {
@@ -98,3 +100,4 @@ button:hover {
   from {opacity: 0;}
   to {opacity: 1;}
 }
+
